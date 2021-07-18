@@ -1,7 +1,8 @@
-#!/bin/python3
+#!/usr/bin/env python3
 import argparse
 import coloredlogs
 import logging
+import os
 import subprocess
 import yaml
 
@@ -53,8 +54,9 @@ def RunTool(cmd, name):
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError:
-        logging.critical("Something went wrong while running a command. Exiting...")
+        logging.critical(f"Something went wrong while running {name}. Exiting...")
         exit(-1)
+    logging.info(f"{name} has finished running")
 
 def amass():
     path = config["paths"]["amass_path"]
@@ -142,9 +144,34 @@ def eyewitness():
 
     RunTool(cmd, "eyewitness")
 
+def takeover():
+    path = config["paths"]["takeover_path"]
+    directory = project["general"]["directory"]
+
+    options = project["takeover"]
+    o_enabled = options["enabled"]
+    o_threads = options["threads"]
+    o_timeout = options["timeout"]
+
+    if(not o_enabled):
+        logging.info("takeover disabled. Skipping...")
+        return
+
+    newdir = project["general"]["directory"] + "/takeover/"
+    os.mkdir(newdir)
+
+    cmd = []
+    cmd.append(path)
+    cmd.append("-l"); cmd.append(directory + "/amass/amass.txt")
+    cmd.append("-o"); cmd.append(newdir + "takeover.txt")
+    cmd.append("-t"); cmd.append(str(o_threads))
+    cmd.append("-T"); cmd.append(str(o_timeout))
+
+    RunTool(cmd, "takeover")
 
 if(__name__ == "__main__"):
     print("Bountylink by Andrix")
     setup()
     subdomains()
     eyewitness()
+    takeover()

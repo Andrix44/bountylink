@@ -33,3 +33,9 @@ eyewitness:
   jitter: false
   delay: -1
   maxretry: -1
+
+takeover:
+  enabled: true
+  threads: 3
+  timeout: 5
+  
