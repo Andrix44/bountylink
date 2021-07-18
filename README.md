@@ -14,3 +14,5 @@ Included tools:
 [amass](https://github.com/OWASP/Amass)
 [eyewitness](https://github.com/FortyNorthSecurity/EyeWitness)
 [takeover](https://github.com/m4ll0k/takeover)
+[availableForPurchase](https://github.com/m4ll0k/Bug-Bounty-Toolz/blob/master/availableForPurchase.py)
+[find-all-links](https://github.com/m4ll0k/Bug-Bounty-Toolz/blob/master/find-all-links.py)

@@ -1,4 +1,4 @@
 results/
 todo.txt
-testproject.yml
 launch.json
+*.yaml

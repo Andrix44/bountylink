@@ -2,7 +2,10 @@
 
 log_level: DEBUG
 
+# Only absolute paths work for now
 paths:
   amass_path: /home/kali/Downloads/Tools/amass/amass
   eyewitness_path: /home/kali/Downloads/Tools/eyewitness/Python/EyeWitness.py
   takeover_path: /home/kali/Downloads/Tools/takeover/takeover.py
+  availableforpurchase_path: /home/kali/Downloads/Tools/takeover/availableForPurchase.py
+  find-all-links_path: /home/kali/Downloads/Tools/find-all-links/find-all-links.py

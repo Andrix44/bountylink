@@ -1,20 +1,25 @@
 # Use this as a template for your projects
 # I only added the settings that I deemed important, but it's easy to add new ones
 
-# TODO: maybe add an extra_params option?
+##################################################################
+# Rename your project files to .yaml so git doesn't pick them up #
+##################################################################
 
 general:
   name: Template
-  directory: ./results/template
-  rootdomains:
+  directory: ./results/template/
+  rootdomains: # at least one is required
     example.com
     google.com
-  blacklisted:
-    www.example.com
-    maps.google.com
-  # TODO: blacklist_regex
+  blacklists:
+    blacklisted_subdoms: # remove all to disable feature
+      www.example.com
+      maps.google.com
+    blacklisted_url_components:  # remove all to disable feature
+      dev
+      prod
+    unsafe_matching: false # for example safe matching would block both "prod.*.com" and "prodigy.*.com" while unsafe matching would approve "prodigy.*.com"
 
-# For now you will have to configure amass separately in the usual way
 amass:
   enabled: true
   active: true
@@ -23,6 +28,8 @@ amass:
   silent: false
   verbose: false
   timeout: -1
+  config: UNDEFINED # path to config or UNDEFINED
+  # maybe move this to config.yml?
 
 eyewitness:
   enabled: true
@@ -30,12 +37,17 @@ eyewitness:
   noprompt: true
   skipdns: false
   timeout: -1
-  jitter: false
+  jitter: -1
   delay: -1
   maxretry: -1
 
 takeover:
   enabled: true
-  threads: 3
+  threads: 5
   timeout: 5
-  
+
+availableforpurchase:
+  enabled: true
+
+find-all-links:
+  enabled: true
