@@ -1,0 +1,7 @@
+# Base config file for bountylink
+
+log_level: DEBUG
+
+paths:
+  amass_path: /home/kali/Downloads/Tools/amass/amass
+  eyewitness_path: /home/kali/Downloads/Tools/eyewitness/Python/EyeWitness.py

@@ -1,0 +1,35 @@
+# Use this as a template for your projects
+# I only added the settings that I deemed important, but it's easy to add new ones
+
+# TODO: maybe add an extra_params option?
+
+general:
+  name: Template
+  directory: ./results/template
+  rootdomains:
+    example.com
+    google.com
+  blacklisted:
+    www.example.com
+    maps.google.com
+  # TODO: blacklist_regex
+
+# For now you will have to configure amass separately in the usual way
+amass:
+  enabled: true
+  active: true
+  alterations: false
+  share: true
+  silent: false
+  verbose: false
+  timeout: -1
+
+eyewitness:
+  enabled: true
+  prependhttps: true
+  noprompt: true
+  skipdns: false
+  timeout: -1
+  jitter: false
+  delay: -1
+  maxretry: -1
