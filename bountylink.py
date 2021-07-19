@@ -68,35 +68,30 @@ def RunTool(cmd, name, timeout_s=None):
     logging.info(f"{name} has finished running")
 
 def Amass():
-    path = paths["amass_path"]
+    o_config = config["paths"]["amass_config_path"]
 
     options = project["amass"]
-    o_enabled = options["enabled"]
     o_active = options["active"]
     o_alts = options["alterations"]
     o_share = options["share"]
     o_silent = options["silent"]
     o_verbose = options["verbose"]
     o_timeout = options["timeout"]
-    o_config = options["config"]
 
     general = project["general"]
-    blacklists = general["blacklists"]
-    domains = general["rootdomains"].replace(" ",  ",")
-    try:
-        blacklisted = blacklists["blacklisted_subdoms"].replace(" ",  ",")
-    except:
-        blacklisted = False
+    domains = ','.join(general["rootdomains"])
 
-    if(not o_enabled):
+    if(not options["enabled"]):
         logging.info("amass disabled. Skipping...")
         return
 
     cmd = []
-    cmd.append(path)
+    cmd.append(paths["amass_path"])
     cmd.append("enum")
     if(o_active):
         cmd.append("-active")
+    else:
+        cmd.append("-passive")
     if(not o_alts):
         cmd.append("-noalts")
     if(o_share):
@@ -108,52 +103,123 @@ def Amass():
     if(o_timeout > 0):
         cmd.append("-timeout"); cmd.append(str(o_timeout))
     cmd.append("-d") ;cmd.append(domains)
-    if(blacklisted):
-        cmd.append("-bl"); cmd.append(blacklisted)
     cmd.append("-dir"); cmd.append(directory + "amass")
     if(o_config != "UNDEFINED"):
         cmd.append("-config"); cmd.append(o_config)
 
     RunTool(cmd, "amass")
 
-    try:
-        blisted_url_components = blacklists["blacklisted_url_components"].replace(" ", "|")
-    except:
-        blisted_url_components = False
+def Shuffledns():
+    path = paths["shuffledns_path"]
+    massdns_path = paths["massdns_path"]
+    wordlist_path = paths["subdomain_wordlist_path"]
+    resolvers_path = paths["dns_resolvers_path"]
 
-    if(blisted_url_components):
-        with open(directory + "amass/amass.txt") as f:
-            urls = [line.strip() for line in f]
+    options = project["shuffledns"]
+    o_retries = options["retries"]
+    o_verbose = options["verbose"]
+    o_silent = options["silent"]
+    o_threads = options["threads"]
+    o_wc_checks = options["wildcard_checks"]
 
-        unsafe_matching = "" if blacklists["unsafe_matching"] else "[\.-]"
-        regex_str = f".*({blisted_url_components}){unsafe_matching}.*"
+    domains = project["general"]["rootdomains"]
+
+    if(not options["enabled"]):
+        logging.info("shuffledns disabled. Skipping...")
+        return
+
+    newdir = directory + "shuffledns/"
+    os.makedirs(newdir, exist_ok=True)
+
+    for domain in domains:
+        tempfile_path = f"/tmp/dnslist_{domain}"
+        with open(wordlist_path, 'r') as f:
+            subdomlist = [(line.strip() + f".{domain}\n") for line in f]
+        with open(tempfile_path, 'w') as f:
+            f.writelines(subdomlist)
+
+        cmd = []
+        cmd.append(path)
+        cmd.append("-d"); cmd.append(domain)
+        cmd.append("-list"); cmd.append(tempfile_path)
+        cmd.append("-r"); cmd.append(resolvers_path)
+        cmd.append("-o"); cmd.append(newdir + f"{domain}.txt")
+        cmd.append("-massdns"); cmd.append(massdns_path)
+        cmd.append("-retries"); cmd.append(str(o_retries))
+        if(o_verbose):
+            cmd.append("-v")
+        if(o_silent):
+            cmd.append("-silent")
+        cmd.append("-t"); cmd.append(str(o_threads))
+        cmd.append("-wt"); cmd.append(str(o_wc_checks))
+
+        RunTool(cmd, f"shuffledns({domain})")
+
+        os.remove(tempfile_path)
+
+def SDomainCleanup():
+    def Unique(items):
+        seen = set()
+        for i in range(len(items)-1, -1, -1):
+            it = items[i]
+            if it in seen:
+                del items[i]
+            else:
+                seen.add(it)
+
+    logging.info("Cleaning up subdomains...")
+    blacklists = project["general"]["blacklists"]
+    urls = []
+
+    if(project["amass"]["enabled"]):
+        with open(directory + "amass/amass.txt", 'r') as f:
+            urls += [line for line in f]
+
+    if(project["shuffledns"]["enabled"]):
+        files = os.listdir(directory + "shuffledns/")
+        for file in files:
+            with open(directory + "shuffledns/" + file, 'r') as f:
+                urls += [line for line in f]
+
+    Unique(urls)
+    newdir = directory + "bl_subdomains/"
+    os.makedirs(newdir, exist_ok=True)
+
+    blisted_url_components = blacklists["blacklisted_url_components"] or []
+    blisted_subdomains = blacklists["blacklisted_subdoms"] or []
+    if(blisted_url_components or blisted_subdomains): # separating these would have been harder
+        re_part = '|'.join(blisted_url_components)
+        unsafe_matching = "[\.-]" if blacklists["unsafe_matching"] else ""
+        regex_str = f".*({re_part}){unsafe_matching}.*"
         logging.debug(f"Blacklist regex: {regex_str}")
         compiled = re.compile(regex_str)
 
         blacklisted_urls = []
         valid_urls = []
         for url in urls:
-            if(compiled.match(url)):
-                blacklisted_urls.append(url + '\n')
+            if(compiled.match(url) or (url.strip() in blisted_subdomains)):
+                blacklisted_urls.append(url)
             else:
-                valid_urls.append(url + '\n')
+                valid_urls.append(url)
 
-        with open(directory + "amass/cleaned.txt", 'w') as f:
+        with open(newdir + "cleaned.txt", 'w') as f:
             f.writelines(valid_urls)
-        with open(directory + "amass/blocked.txt", 'w') as f:
+        with open(newdir + "blocked.txt", 'w') as f:
             f.writelines(blacklisted_urls)
     else:
-        copyfile(directory + "amass/amass.txt", directory + "amass/cleaned.txt")
+        with open(newdir + "cleaned.txt", 'w') as f:
+            f.writelines(urls)
+
+    logging.info("Subdomain cleanup has finished running")
 
 def Subdomains():
     Amass()
-    # TODO: masscan()
+    Shuffledns()
+    if(project["amass"]["enabled"] or project["shuffledns"]["enabled"]):
+        SDomainCleanup()
 
 def Eyewitness():
-    path = paths["eyewitness_path"]
-
     options = project["eyewitness"]
-    o_enabled = options["enabled"]
     o_prependhttps = options["prependhttps"]
     o_noprompt = options["noprompt"]
     o_skipdns = options["skipdns"]
@@ -162,13 +228,13 @@ def Eyewitness():
     o_delay = options["delay"]
     o_maxretry = options["maxretry"]
 
-    if(not o_enabled):
+    if(not options["enabled"]):
         logging.info("eyewitness disabled. Skipping...")
         return
 
     cmd = []
-    cmd.append(path)
-    cmd.append("-f"); cmd.append(directory + "amass/cleaned.txt")
+    cmd.append(paths["eyewitness_path"])
+    cmd.append("-f"); cmd.append(directory + "bl_subdomains/cleaned.txt")
     cmd.append("-d"); cmd.append(directory + "eyewitness")
     if(o_prependhttps):
         cmd.append("--prepend-https")
@@ -188,14 +254,11 @@ def Eyewitness():
     RunTool(cmd, "eyewitness")
 
 def Takeover():
-    path = paths["takeover_path"]
-
     options = project["takeover"]
-    o_enabled = options["enabled"]
     o_threads = options["threads"]
     o_timeout = options["timeout"]
 
-    if(not o_enabled):
+    if(not options["enabled"]):
         logging.info("takeover disabled. Skipping...")
         return
 
@@ -203,8 +266,8 @@ def Takeover():
     os.makedirs(newdir, exist_ok=True)
 
     cmd = []
-    cmd.append(path)
-    cmd.append("-l"); cmd.append(directory + "amass/cleaned.txt")
+    cmd.append(paths["takeover_path"])
+    cmd.append("-l"); cmd.append(directory + "bl_subdomains/cleaned.txt")
     cmd.append("-o"); cmd.append(newdir + "takeover.txt")
     cmd.append("-t"); cmd.append(str(o_threads))
     cmd.append("-T"); cmd.append(str(o_timeout))
@@ -212,20 +275,16 @@ def Takeover():
     RunTool(cmd, "takeover")
 
 def AvailableForPurchase():
-    path = paths["availableforpurchase_path"]
-
-    o_enabled = project["availableforpurchase"]["enabled"]
-
-    if(not o_enabled):
+    if(not project["availableforpurchase"]["enabled"]):
         logging.info("availableForPurchase disabled. Skipping...")
         return
 
     cmd = []
-    cmd.append("echo"); cmd.append(project["general"]["rootdomains"].replace(" ",  "\n"))
+    cmd.append("echo"); cmd.append('\n'.join(project["general"]["rootdomains"]))
     hosts = subprocess.run(cmd, check=True, capture_output=True)
     
     cmd = []
-    cmd.append("python3"); cmd.append(path)
+    cmd.append("python3"); cmd.append(paths["availableforpurchase_path"])
     available = subprocess.run(cmd, input=hosts.stdout, capture_output=True)
 
     output = available.stdout.decode()
@@ -239,33 +298,60 @@ def Takeovers():
     Takeover()
     AvailableForPurchase()
 
-def FindAllLinks():
-    path = paths["find-all-links_path"]
+def Gau():
+    o_threads = project["gau"]["threads"]
 
-    o_enabled = project["find-all-links"]["enabled"]
-
-    if(not o_enabled):
-        logging.info("find-all-links disabled. Skipping...")
+    if(not project["gau"]["enabled"]):
+        logging.info("gau disabled. Skipping...")
         return
 
-    with open(directory + "amass/amass.txt", 'r') as f: # out of scope subdomains shouldn't be an issue here, this just pulls stuff from the web archive
+    with open(directory + "bl_subdomains/cleaned.txt", 'r') as f:
         subdomains = [line.strip() for line in f]
 
-    newdir = directory + "find-all-links/"
+    with open(directory + "bl_subdomains/blocked.txt", 'r') as f: # out of scope subdomains shouldn't be an issue here, this just pulls stuff from the web
+        subdomains += [line.strip() for line in f]
+
+    newdir = directory + "gau/"
     os.makedirs(newdir, exist_ok=True)
 
     for subdom in subdomains:
         filepath = newdir + f"{subdom}.txt"
         cmd = []
-        cmd.append(path)
+        cmd.append(paths["gau_path"])
+        cmd.append("-o"); cmd.append(filepath)
+        cmd.append("-t"); cmd.append(str(o_threads))
         cmd.append(subdom)
-        cmd.append(filepath)
         try:
-            RunTool(cmd, f"find-all-links({subdom})", 180)
+            RunTool(cmd, f"gau({subdom})", 300)
             if(os.path.getsize(filepath) == 0):
                 os.remove(filepath)
         except subprocess.TimeoutExpired:
-            logging.error(f"find-all-links({subdom}) has timed out and was killed.")
+            logging.error(f"gau({subdom}) has timed out and was killed.")
+
+def Gitleaks():
+    o_verbose = project["gitleaks"]["verbose"]
+    o_quiet = project["gitleaks"]["quiet"]
+
+    repos = project["general"]["git_repos"]
+
+    if(not project["gitleaks"]["enabled"] or not repos):
+        logging.info("availableForPurchase disabled. Skipping...")
+        return
+
+    newdir = directory + "gitleaks/"
+    os.makedirs(newdir, exist_ok=True)
+
+    for repo in repos:
+        cmd = []
+        cmd.append(paths["gitleaks_path"])
+        cmd.append("-r"); cmd.append(repo)
+        cmd.append("-o"); cmd.append(newdir +  f"{'_'.join(repo.split('/')[-2:])}.json")
+        cmd.append("--leaks-exit-code"); cmd.append("0")
+        if(o_verbose):
+            cmd.append("-v")
+        if(o_quiet):
+            cmd.append("-q")
+        RunTool(cmd, f"gitleaks({repo})")
 
 if(__name__ == "__main__"):
     print("Bountylink by Andrix")
@@ -273,4 +359,5 @@ if(__name__ == "__main__"):
     Subdomains()
     Eyewitness()
     Takeovers()
-    FindAllLinks()
+    Gau()
+    Gitleaks()

@@ -12,7 +12,10 @@ optional arguments:
 ```
 Included tools:
 [amass](https://github.com/OWASP/Amass)
+[massdns](https://github.com/blechschmidt/massdns)
+[shuffledns](https://github.com/projectdiscovery/shuffledns)
 [eyewitness](https://github.com/FortyNorthSecurity/EyeWitness)
 [takeover](https://github.com/m4ll0k/takeover)
 [availableForPurchase](https://github.com/m4ll0k/Bug-Bounty-Toolz/blob/master/availableForPurchase.py)
-[find-all-links](https://github.com/m4ll0k/Bug-Bounty-Toolz/blob/master/find-all-links.py)
+[gau](https://github.com/lc/gau)
+[gitleaks](https://github.com/zricethezav/gitleaks)

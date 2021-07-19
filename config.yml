@@ -2,10 +2,16 @@
 
 log_level: DEBUG
 
-# Only absolute paths work for now
+# Wildcards don't work for now
 paths:
   amass_path: /home/kali/Downloads/Tools/amass/amass
+  amass_config_path: /home/kali/.config/amass/config.ini
+  massdns_path: /home/kali/Downloads/Tools/massdns/bin/massdns
+  shuffledns_path: /home/kali/Downloads/Tools/shuffledns/shuffledns
+  subdomain_wordlist_path: /home/kali/Downloads/Tools/wordlists/subdomains-top1million-110000.txt
+  dns_resolvers_path: /home/kali/Downloads/Tools/dnsvalidator/resolvers.txt # use https://github.com/vortexau/dnsvalidator to generate
   eyewitness_path: /home/kali/Downloads/Tools/eyewitness/Python/EyeWitness.py
   takeover_path: /home/kali/Downloads/Tools/takeover/takeover.py
   availableforpurchase_path: /home/kali/Downloads/Tools/takeover/availableForPurchase.py
-  find-all-links_path: /home/kali/Downloads/Tools/find-all-links/find-all-links.py
+  gau_path: gau
+  gitleaks_path: /home/kali/Downloads/Tools/gitleaks/gitleaks-linux-amd64

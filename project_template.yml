@@ -9,27 +9,36 @@ general:
   name: Template
   directory: ./results/template/
   rootdomains: # at least one is required
-    example.com
-    google.com
+    - example.com
+    - google.com
   blacklists:
     blacklisted_subdoms: # remove all to disable feature
-      www.example.com
-      maps.google.com
+      - www.example.com
+      - maps.google.com
     blacklisted_url_components:  # remove all to disable feature
-      dev
-      prod
+      - dev
+      - prod
     unsafe_matching: false # for example safe matching would block both "prod.*.com" and "prodigy.*.com" while unsafe matching would approve "prodigy.*.com"
+  git_repos: # remove all to disable feature
+     - https://github.com/zricethezav/gitleaks
+     - https://github.com/Andrix44/bountylink # this will crash the tool because the repo is private, remove it when running
 
 amass:
   enabled: true
-  active: true
-  alterations: false
+  active: false
+  alterations: true
   share: true
   silent: false
   verbose: false
   timeout: -1
-  config: UNDEFINED # path to config or UNDEFINED
-  # maybe move this to config.yml?
+
+shuffledns: # this one requires massdns to be installed
+  enabled: true
+  retries: 3
+  verbose: false
+  silent: false
+  threads: 10000
+  wildcard_checks: 25
 
 eyewitness:
   enabled: true
@@ -49,5 +58,11 @@ takeover:
 availableforpurchase:
   enabled: true
 
-find-all-links:
+gau:
   enabled: true
+  threads: 10
+
+gitleaks:
+  enabled: true
+  verbose: true
+  quiet: false
