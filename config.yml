@@ -1,17 +1,22 @@
 # Base config file for bountylink
 
 log_level: DEBUG
+user_agent: # custom user agent or empty
+# Mozilla/5.0 (HackerOne/andrix) Gecko/20100101 Firefox/90.0
 
 # Wildcards don't work for now
 paths:
-  amass_path: /home/kali/Downloads/Tools/amass/amass
-  amass_config_path: /home/kali/.config/amass/config.ini
-  massdns_path: /home/kali/Downloads/Tools/massdns/bin/massdns
-  shuffledns_path: /home/kali/Downloads/Tools/shuffledns/shuffledns
-  subdomain_wordlist_path: /home/kali/Downloads/Tools/wordlists/subdomains-top1million-110000.txt
-  dns_resolvers_path: /home/kali/Downloads/Tools/dnsvalidator/resolvers.txt # use https://github.com/vortexau/dnsvalidator to generate
-  eyewitness_path: /home/kali/Downloads/Tools/eyewitness/Python/EyeWitness.py
-  takeover_path: /home/kali/Downloads/Tools/takeover/takeover.py
-  availableforpurchase_path: /home/kali/Downloads/Tools/takeover/availableForPurchase.py
-  gau_path: gau
-  gitleaks_path: /home/kali/Downloads/Tools/gitleaks/gitleaks-linux-amd64
+  amass: /home/kali/Downloads/Tools/amass/amass
+  amass_config: /home/kali/.config/amass/config.ini # path to config or empty
+  massdns: /home/kali/Downloads/Tools/massdns/bin/massdns
+  shuffledns: /home/kali/Downloads/Tools/shuffledns/shuffledns
+  subdomain_wordlist: /home/kali/Downloads/Tools/wordlists/subdomains-top1million-110000.txt
+  dns_resolvers: /home/kali/Downloads/Tools/dnsvalidator/resolvers.txt # use https://github.com/vortexau/dnsvalidator to generate
+  httprobe: /home/kali/Downloads/Tools/httprobe/httprobe
+  eyewitness: /home/kali/Downloads/Tools/eyewitness/Python/EyeWitness.py
+  takeover: /home/kali/Downloads/Tools/takeover/takeover.py
+  availableforpurchase: /home/kali/Downloads/Tools/takeover/availableForPurchase.py
+  webanalyze: /home/kali/Downloads/Tools/webanalyze/webanalyze
+  corsy: /home/kali/Downloads/Tools/corsy/corsy.py
+  gau: gau
+  gitleaks: /home/kali/Downloads/Tools/gitleaks/gitleaks-linux-amd64

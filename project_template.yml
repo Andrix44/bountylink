@@ -1,9 +1,8 @@
+#####################################################################################################
 # Use this as a template for your projects
 # I only added the settings that I deemed important, but it's easy to add new ones
-
-##################################################################
-# Rename your project files to .yaml so git doesn't pick them up #
-##################################################################
+# I don't recommend messing with the settings that change the output format of individual tools
+#####################################################################################################
 
 general:
   name: Template
@@ -22,11 +21,14 @@ general:
   git_repos: # remove all to disable feature
      - https://github.com/zricethezav/gitleaks
      - https://github.com/Andrix44/bountylink # this will crash the tool because the repo is private, remove it when running
+  git_orgs: # remove all to disable feature
+     - github
+     - githubteacher
 
 amass:
   enabled: true
-  active: false
-  alterations: true
+  active: false # pipe these into the resolver
+  alterations: false
   share: true
   silent: false
   verbose: false
@@ -40,9 +42,13 @@ shuffledns: # this one requires massdns to be installed
   threads: 10000
   wildcard_checks: 25
 
+httprobe:
+  enabled: true # not recommended to turn this off, as many of the following tools use its output
+  threads: 20
+  timeout: 5000 # ms
+
 eyewitness:
   enabled: true
-  prependhttps: true
   noprompt: true
   skipdns: false
   timeout: -1
@@ -58,11 +64,26 @@ takeover:
 availableforpurchase:
   enabled: true
 
+webanalyze:
+  enabled: true
+  redirect: true
+  crawl: 0
+  worker: 4
+  silent: true
+  update: false
+
+corsy:
+  enabled: true
+  quiet: false
+  threads: -1
+  delay: -1
+
 gau:
   enabled: true
   threads: 10
 
 gitleaks:
   enabled: true
+  skip_forks: true # only works on organizations, you can add the repos separately to scan forks
   verbose: true
   quiet: false
