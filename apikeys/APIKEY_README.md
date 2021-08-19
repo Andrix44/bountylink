@@ -1,0 +1,2 @@
+The template configuration file contains the names of the required api keys, you have to put each of them in a different text file, for example:
+The tool asks for CENSYS_API_ID so you create a file called CENSYS_API_ID.txt and put your key inside. That's all.

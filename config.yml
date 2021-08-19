@@ -12,7 +12,7 @@ paths:
   shuffledns: /home/kali/Downloads/Tools/shuffledns/shuffledns
   subdomain_wordlist: /home/kali/Downloads/Tools/wordlists/subdomains-top1million-110000.txt
   dns_resolvers: /home/kali/Downloads/Tools/dnsvalidator/resolvers.txt # use https://github.com/vortexau/dnsvalidator to generate
-  httprobe: /home/kali/Downloads/Tools/httprobe/httprobe
+  httpx: /home/kali/Downloads/Tools/httpx/httpx
   eyewitness: /home/kali/Downloads/Tools/eyewitness/Python/EyeWitness.py
   takeover: /home/kali/Downloads/Tools/takeover/takeover.py
   availableforpurchase: /home/kali/Downloads/Tools/takeover/availableForPurchase.py
@@ -20,3 +20,5 @@ paths:
   corsy: /home/kali/Downloads/Tools/corsy/corsy.py
   gau: gau
   gitleaks: /home/kali/Downloads/Tools/gitleaks/gitleaks-linux-amd64
+  cloudflair: /home/kali/Downloads/Tools/cloudflair/cloudflair.py # uses pip2 to install the requirements, python3 errors on something
+  naabu: /home/kali/Downloads/Tools/naabu/naabu

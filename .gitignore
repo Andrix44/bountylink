@@ -1,5 +1,6 @@
 results/
 projects/
+apikeys/*.txt
 todo.txt
 launch.json
-*.yaml
+geckodriver.log

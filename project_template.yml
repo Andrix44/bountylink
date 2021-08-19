@@ -7,27 +7,29 @@
 general:
   name: Template
   directory: ./results/template/
-  rootdomains: # at least one is required
+  rootdomains:
     - example.com
     - google.com
+  cidrs: # not working I think
+    - 192.168.1.0/24
+    - 127.0.0.0/22
   blacklists:
-    blacklisted_subdoms: # remove all to disable feature
+    blacklisted_subdoms:
       - www.example.com
       - maps.google.com
-    blacklisted_url_components:  # remove all to disable feature
+    blacklisted_url_components: 
       - dev
       - prod
     unsafe_matching: false # for example safe matching would block both "prod.*.com" and "prodigy.*.com" while unsafe matching would approve "prodigy.*.com"
-  git_repos: # remove all to disable feature
+  git_repos:
      - https://github.com/zricethezav/gitleaks
      - https://github.com/Andrix44/bountylink # this will crash the tool because the repo is private, remove it when running
-  git_orgs: # remove all to disable feature
+  git_orgs:
      - github
      - githubteacher
 
 amass:
   enabled: true
-  active: false # pipe these into the resolver
   alterations: false
   share: true
   silent: false
@@ -42,10 +44,18 @@ shuffledns: # this one requires massdns to be installed
   threads: 10000
   wildcard_checks: 25
 
-httprobe:
+httpx:
   enabled: true # not recommended to turn this off, as many of the following tools use its output
-  threads: 20
-  timeout: 5000 # ms
+  cust_header: false
+  http2: false
+  ports: 80,443,8080,8443,8880
+  rate_limit: 150
+  retries: 1
+  silent: false
+  threads: 50
+  timeout: 5
+  verbose: false
+  methods: GET
 
 eyewitness:
   enabled: true
@@ -87,3 +97,22 @@ gitleaks:
   skip_forks: true # only works on organizations, you can add the repos separately to scan forks
   verbose: true
   quiet: false
+
+cloudflair: # !!! requires CENSYS_API_ID and CENSYS_API_SECRET (https://censys.io/account/api)
+  enabled: true # !!! if your logging level is DEBUG then this will leak your api keys in the debug log
+
+naabu:
+  enabled: true
+  nmap_enabled: true
+  nmap_args: "-A -oN {{dir}}nmap_out.txt" # {{dir}} is replaced with the naabu directory
+  exclude_ports: 80,443
+  threads: 25
+  exclude_cdn: true
+  rate: 1000
+  retries: 3
+  silent: false
+  timeout: 1000
+  top_ports: 100 # can also be 1000
+  verbose: false
+  verify: false
+  warm_up_time: 2
