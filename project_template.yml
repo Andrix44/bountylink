@@ -23,7 +23,7 @@ general:
     unsafe_matching: false # for example safe matching would block both "prod.*.com" and "prodigy.*.com" while unsafe matching would approve "prodigy.*.com"
   git_repos:
      - https://github.com/zricethezav/gitleaks
-     - https://github.com/Andrix44/bountylink # this will crash the tool because the repo is private, remove it when running
+     - https://github.com/Andrix44/bountylink
   git_orgs:
      - github
      - githubteacher
